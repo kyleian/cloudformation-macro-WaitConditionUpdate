@@ -20,14 +20,17 @@ def recursiveFindReplaceText(obj, text, replace):
 
 def replaceWaitConditionLogicalIds(template, paramHash):
 
+    newTemplate = template
     changes = []
     for logicalId, resource in template['Resources'].items():
         if resource['Type'] in ["AWS::CloudFormation::WaitConditionHandle", "AWS::CloudFormation::WaitCondition"] and not logicalId.endswith(paramHash):
             newId = logicalId+paramHash
-            template['Resources'][newId] = template['Resources'].pop(logicalId)
             changes.append((logicalId, newId))
 
-    return template, changes
+    for change in changes:
+        newTemplate['Resources'][change[1]] = template['Resources'].pop(change[0])
+
+    return newTemplate, changes
 
 def handler(event, context):
 
